@@ -107,7 +107,7 @@
           return {
             file: null,
             progress: 0,
-            CHUNK_SIZE: 5 * 1024 * 1024, // 分片大小
+            CHUNK_SIZE: 10 * 1024 * 1024, // 分片大小
             fileSize: 0
           };
         },
@@ -115,10 +115,15 @@
           handleFileChange(e) {
             this.file = e.target.files[0];
             this.fileSize = (this.file.size / 1024 / 1024).toFixed(2); // 转换为 MB
+            this.progress = 0;
+            // 根据文件类型设置分片大小
+            const VIDEO_TYPES = ["video/mp4", "video/quicktime"];
+            const isVideo = VIDEO_TYPES.includes(this.file.type);
+            this.CHUNK_SIZE = isVideo ? 20 * 1024 * 1024 : 10 * 1024 * 1024; // 视频文件使用更大分片大小，视频文件使用更大分片
           },
           async handleUpload() {
             if (!this.file) return;
-            this.progress = 0;
+
             const fileHash = await this.calculateHash(this.file);
             const chunkCount = Math.ceil(this.file.size / this.CHUNK_SIZE);
 
